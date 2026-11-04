@@ -129,11 +129,18 @@ def main(argv=None) -> int:
                                            n_boot=max(2000, args.n_boot // 5))
         k, klo, khi, _ = cluster_bootstrap(brier_skill_score, ps, ys, clusters=ms,
                                            n_boot=max(2000, args.n_boot // 5))
+        f = favourite_longshot_test(ps, ys, clusters=ms)
         rows.append(dict(horizon=int(hz), n=int(len(s)), base_rate=float(ys.mean()),
                          brier=b, brier_lo=blo, brier_hi=bhi,
-                         bss=k, bss_lo=klo, bss_hi=khi))
+                         bss=k, bss_lo=klo, bss_hi=khi,
+                         slope=f.slope, slope_lo=f.slope_lo, slope_hi=f.slope_hi,
+                         slope_p=f.p_value_slope_eq_1))
     horizons = pd.DataFrame(rows)
     R["by_horizon"] = horizons
+    # Only here does clustering bite: at one horizon each market is a single row.
+    R["favourite_longshot_pooled"] = favourite_longshot_test(
+        df["price"].to_numpy(float), df["outcome"].to_numpy(float),
+        clusters=df["market_id"].to_numpy()).as_dict()
     plots.horizon_panel(horizons, fig_dir / "06_horizons.png")
 
     # ------------------------------------- 5. walk-forward recal + backtest

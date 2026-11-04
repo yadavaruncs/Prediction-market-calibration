@@ -153,6 +153,7 @@ def walk_forward_recalibration(
     price_col: str = "price",
     outcome_col: str = "outcome",
     time_col: str = "close_time",
+    horizon_col: str = "days_to_resolution",
     min_train: int = 150,
     refit_every: int = 25,
 ) -> pd.DataFrame:
@@ -161,34 +162,45 @@ def walk_forward_recalibration(
     This is the part of a calibration study that is easiest to get wrong. If
     you fit the recalibration on the whole sample and then score it on the
     whole sample, you will always find an edge, because the model has already
-    seen the answers. Every fit here uses an expanding window of strictly
-    earlier markets.
+    seen the answers. Every fit here uses an expanding window of markets that
+    had already resolved when the price being recalibrated was observed, which
+    is `horizon_col` days before that market's own close. Expects one horizon
+    per call, so that this window only ever grows.
 
-    Refitting every `refit_every` rows rather than every row is a speed
+    Refitting every `refit_every` new outcomes rather than every row is a speed
     tradeoff; with ~900 markets the difference in output is negligible and it
     keeps the whole pipeline under a second.
 
     Returns the input frame, ordered by time, with a `p_recal` column that is
-    NaN for the burn-in rows that had no training data.
+    NaN for the burn-in rows with fewer than `min_train` known outcomes.
     """
     out = df.sort_values(time_col, kind="stable").reset_index(drop=True).copy()
     p = out[price_col].to_numpy(float)
     y = out[outcome_col].to_numpy(float)
     z = logit(p)
 
+    observed_at = out[time_col]
+    if horizon_col in out:
+        observed_at = observed_at - pd.to_timedelta(out[horizon_col], unit="D")
+    # side="left": a market closing at the observation instant is not yet known.
+    n_known = out[time_col].searchsorted(observed_at, side="left")
+
     recal = np.full(len(out), np.nan)
     coef = None
+    fitted_on = 0
     for i in range(len(out)):
-        if i < min_train:
+        k = int(n_known[i])
+        if k < min_train:
             continue
-        if coef is None or (i - min_train) % refit_every == 0:
-            Xtr = sm.add_constant(z[:i])
-            ytr = y[:i]
+        if coef is None or k - fitted_on >= refit_every:
+            Xtr = sm.add_constant(z[:k])
+            ytr = y[:k]
             if len(np.unique(ytr)) < 2:
                 continue
             try:
                 fit = sm.Logit(ytr, Xtr).fit(disp=0)
                 coef = (float(fit.params[0]), float(fit.params[1]))
+                fitted_on = k
             except Exception:
                 # Separation or a singular design in an early window: keep the
                 # previous coefficients rather than inventing a forecast.

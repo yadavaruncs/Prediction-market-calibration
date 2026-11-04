@@ -126,8 +126,8 @@ def threshold_curve(sweep: pd.DataFrame, out: Path) -> Path:
                     textcoords="offset points", xytext=(0, 9),
                     fontsize=8, color=INK, ha="center")
     ax.set_xlabel("signal threshold (|recalibrated - price|)", fontsize=10)
-    ax.set_ylabel("net return on notional", fontsize=10)
-    ax.set_title("Every interval crosses zero", fontsize=11, loc="left")
+    ax.set_ylabel("net return on capital", fontsize=10)
+    ax.set_title("Net return by signal threshold", fontsize=11, loc="left")
     ax.legend(frameon=False, fontsize=9)
     fig.tight_layout()
     out.parent.mkdir(parents=True, exist_ok=True)

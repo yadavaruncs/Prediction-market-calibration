@@ -67,7 +67,10 @@ def engineer(df: pd.DataFrame) -> pd.DataFrame:
                       and three quarters of this sample sits below 0.3.
     log_volume        volume is heavy-tailed across several orders of
                       magnitude; the log makes it usable and interpretable as
-                      'per decade of volume'.
+                      'per decade of volume'. Known exception to the module's
+                      design rule: the dataset only has each market's final
+                      volume, identical at every horizon. Kept because the
+                      leak can only flatter the models, and they still lose.
     is_longshot       below 5c. These dominate the sample by count and behave
                       differently enough to deserve their own indicator.
     is_favourite      above 50c.

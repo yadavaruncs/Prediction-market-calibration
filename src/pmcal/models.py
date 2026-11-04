@@ -49,21 +49,21 @@ def model_zoo() -> dict:
     """Candidate models and the grids searched over each.
 
     Grids are small on purpose: with ~900 markets and 5 folds, a large grid
-    would mostly be fitting noise in the validation score. class_weight is
-    balanced throughout because of the 20/80 split.
+    would mostly be fitting noise in the validation score. No class_weight:
+    reweighting the 20/80 split shifts predicted probabilities away from the
+    true rate, and these models are scored on Brier against the market.
     """
     return {
         "logistic_regression": (
             Pipeline([
                 ("scale", StandardScaler()),
-                ("clf", LogisticRegression(max_iter=2000, class_weight="balanced",
+                ("clf", LogisticRegression(max_iter=2000,
                                            random_state=RANDOM_STATE)),
             ]),
             {"clf__C": [0.01, 0.1, 1.0, 10.0]},
         ),
         "random_forest": (
-            RandomForestClassifier(class_weight="balanced_subsample",
-                                   random_state=RANDOM_STATE, n_jobs=-1),
+            RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
             {"n_estimators": [300], "max_depth": [4, 8, None],
              "min_samples_leaf": [5, 20]},
         ),

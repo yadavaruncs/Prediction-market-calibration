@@ -87,6 +87,30 @@ def test_walk_forward_has_no_lookahead():
     )
 
 
+def test_walk_forward_ignores_outcomes_unknown_at_forecast_time():
+    """A market that closed before row i can still be unresolved when i's price
+    was observed `days_to_resolution` days earlier, so it must not train row i.
+    """
+    rng = np.random.default_rng(101)
+    n, i, horizon = 200, 150, 7
+    df = pd.DataFrame({
+        "market_id": np.arange(n),
+        "price": rng.uniform(0.02, 0.95, n),
+        "close_time": pd.date_range("2024-01-01", periods=n, freq="D", tz="UTC"),
+        "days_to_resolution": horizon,
+    })
+    df["outcome"] = rng.binomial(1, df["price"])
+
+    def recal_after_flipping(rows):
+        t = df.copy()
+        t.loc[rows, "outcome"] = 1 - t.loc[rows, "outcome"]
+        return walk_forward_recalibration(t, min_train=50, refit_every=1)["p_recal"][i]
+
+    base = recal_after_flipping([])
+    assert recal_after_flipping(range(i - horizon, i)) == base
+    assert recal_after_flipping(range(i - horizon - 20, i - horizon)) != base
+
+
 def test_walk_forward_burn_in_is_nan():
     rng = np.random.default_rng(100)
     n = 300

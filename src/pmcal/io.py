@@ -35,8 +35,8 @@ def load_markets(path: str | Path = DEFAULT_PATH, horizon: int | None = None) ->
         raise ValueError(f"dataset is missing columns: {sorted(missing)}")
 
     df["close_time"] = pd.to_datetime(df["close_time"], utc=True, format="mixed")
+    # Degenerate prices stay in: clean() drops them and reports the count.
     df = df.dropna(subset=["price", "outcome", "close_time"])
-    df = df[(df["price"] > 0) & (df["price"] < 1)]
     df["outcome"] = df["outcome"].astype(int)
 
     if horizon is not None:

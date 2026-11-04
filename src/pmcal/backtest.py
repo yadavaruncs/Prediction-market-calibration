@@ -60,7 +60,7 @@ def divergence_signal(df: pd.DataFrame, threshold: float = 0.05,
     """Trade where the recalibrated probability disagrees with the market.
 
     Buy YES when the recalibrated model says the event is more likely than
-    the price implies, buy NO in the reverse case. One unit of notional per
+    the price implies, buy NO in the reverse case. One contract per
     trade -- no sizing, no Kelly, because position sizing on an edge you have
     not established yet is how you turn a statistical artefact into a loss.
     """
@@ -78,14 +78,13 @@ def run_backtest(df: pd.DataFrame, costs: CostModel, threshold: float = 0.05,
     """Return per-trade ROI with a bootstrap interval around it.
 
     Payoff convention: a YES contract bought at price q pays 1 if the event
-    happens and 0 otherwise, so the return on one unit of notional is
-    (y - q) / q... but that is the return on *capital at risk* for a binary,
-    and for a longshot at q = 0.005 it is a 200x multiple that swamps every
-    other trade in the average.
+    happens and 0 otherwise, so a single trade returns (y - q) / q. For a
+    longshot at q = 0.005 that is a 200x multiple, which would swamp a simple
+    average of per-trade returns.
 
-    This uses return on notional instead: profit per 1 unit staked, where a
-    YES at q stakes q and returns 1. That keeps a 0.5c longshot and a 60c
-    favourite on the same scale, which is the only way the mean is readable.
+    So returns are pooled instead: total profit over total capital staked,
+    buying one contract per trade. A longshot stakes little and so weighs
+    little, which is the only way the figure is readable.
     """
     sig = divergence_signal(df, threshold=threshold, price_col=price_col)
     trades = sig[sig["trade"]].copy()
