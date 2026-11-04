@@ -181,16 +181,16 @@ The bin table localises it: mid-probability contracts resolve YES more often
 than they are priced.
 
 The published study this dataset came from reported a slope of 1.01 and
-found no bias. This analysis clusters the standard errors and restricts to a
-single horizon, and gets an interval that excludes 1. That disagreement is
-documented in the README rather than smoothed over."""),
+found no bias. At this one horizon the interval here excludes 1, but it does
+not at the other three horizons or when they are pooled (0.953 [0.841, 1.064]),
+so the two results need not conflict. The README has the table."""),
 
     MD("""## 8. Where this goes next
 
 The backtest, the threshold sweep and the model comparison all live in
-`src/pmcal/` and run together via `make analyse`. The short version: the
-bias is real but small, and it does not survive transaction costs — every
-net-return interval crosses zero."""),
+`src/pmcal/` and run together via `make analyse`. The short version: any
+bias is small and horizon-specific, and it cannot be traded — every net-return
+interval crosses zero."""),
 ]
 
 

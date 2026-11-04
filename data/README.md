@@ -1,7 +1,8 @@
 # Data provenance
 
-`raw/markets.csv` — 3,329 observations across 897 resolved binary
-Polymarket markets, 2024-01-10 to 2026-08-04.
+`raw/markets.csv` — 3,330 rows, of which 3,329 are usable, across 897
+resolved binary Polymarket markets, 2024-01-10 to 2026-08-04. The other row
+is priced at exactly 1.0, so cleaning drops it as an already-settled market.
 
 ## Where it came from
 
@@ -31,7 +32,7 @@ plainly matters more than the few lines it costs.
 | `outcome` | 1 if the contract resolved YES, else 0 |
 | `days_to_resolution` | observation horizon: 1, 3, 7 or 30 |
 | `close_time` | ISO-8601 UTC resolution timestamp |
-| `volume` | market volume |
+| `volume` | final market volume, the same at every horizon |
 
 One row is one (market, horizon) pair, so a market appears up to four times
 with the same `outcome`. Those rows are not independent observations, which

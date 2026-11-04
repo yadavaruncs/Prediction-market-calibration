@@ -1,0 +1,588 @@
+{
+  "cleaning": {
+    "rows_in": 3330,
+    "dropped_missing": 0,
+    "dropped_degenerate_price": 1,
+    "dropped_duplicate_market_horizon": 0,
+    "rows_out": 3329
+  },
+  "eda": {
+    "n_observations": 3329,
+    "n_markets": 897,
+    "observations_per_market": 3.7112597547380157,
+    "horizons": [
+      1,
+      3,
+      7,
+      30
+    ],
+    "base_rate": 0.20066085911685191,
+    "class_balance": {
+      "yes": 668,
+      "no": 2661
+    },
+    "price": {
+      "mean": 0.184262901772304,
+      "median": 0.0055,
+      "q25": 0.001,
+      "q75": 0.285,
+      "min": 0.0005,
+      "max": 0.9995,
+      "share_under_5c": 0.64283568639231,
+      "share_over_50c": 0.1820366476419345
+    },
+    "date_from": "2024-01-10",
+    "date_to": "2026-08-04",
+    "categories": {
+      "unknown": 3329
+    },
+    "category_usable": false
+  },
+  "base_rate_by_horizon": [
+    {
+      "days_to_resolution": 1,
+      "n": 885,
+      "base_rate": 0.21242937853107344,
+      "mean_price": 0.2082290395480226,
+      "median_price": 0.0035,
+      "price_minus_rate": -0.004200338983050833
+    },
+    {
+      "days_to_resolution": 3,
+      "n": 887,
+      "base_rate": 0.21420518602029312,
+      "mean_price": 0.20631961668545662,
+      "median_price": 0.0045,
+      "price_minus_rate": -0.0078855693348365
+    },
+    {
+      "days_to_resolution": 7,
+      "n": 825,
+      "base_rate": 0.19393939393939394,
+      "mean_price": 0.1665812121212121,
+      "median_price": 0.0055,
+      "price_minus_rate": -0.027358181818181837
+    },
+    {
+      "days_to_resolution": 30,
+      "n": 732,
+      "base_rate": 0.17759562841530055,
+      "mean_price": 0.14848838797814207,
+      "median_price": 0.00925,
+      "price_minus_rate": -0.029107240437158483
+    }
+  ],
+  "drift_by_quarter": [
+    {
+      "quarter": "2024Q1",
+      "n": 4,
+      "base_rate": 1.0,
+      "mean_price": 0.84875,
+      "brier": 0.023331250000000005
+    },
+    {
+      "quarter": "2024Q2",
+      "n": 4,
+      "base_rate": 1.0,
+      "mean_price": 0.37875000000000003,
+      "brier": 0.44965625
+    },
+    {
+      "quarter": "2024Q3",
+      "n": 81,
+      "base_rate": 0.2716049382716049,
+      "mean_price": 0.20496913580246912,
+      "brier": 0.09710339197530864
+    },
+    {
+      "quarter": "2024Q4",
+      "n": 472,
+      "base_rate": 0.13771186440677965,
+      "mean_price": 0.12386016949152544,
+      "brier": 0.05342478919491526
+    },
+    {
+      "quarter": "2025Q1",
+      "n": 420,
+      "base_rate": 0.08333333333333333,
+      "mean_price": 0.08271547619047619,
+      "brier": 0.012705502976190476
+    },
+    {
+      "quarter": "2025Q2",
+      "n": 369,
+      "base_rate": 0.16802168021680217,
+      "mean_price": 0.16688075880758807,
+      "brier": 0.04903418157181572
+    },
+    {
+      "quarter": "2025Q3",
+      "n": 72,
+      "base_rate": 0.2916666666666667,
+      "mean_price": 0.2756388888888888,
+      "brier": 0.05544737499999999
+    },
+    {
+      "quarter": "2025Q4",
+      "n": 347,
+      "base_rate": 0.17002881844380405,
+      "mean_price": 0.16619452449567723,
+      "brier": 0.05206802089337175
+    },
+    {
+      "quarter": "2026Q1",
+      "n": 513,
+      "base_rate": 0.1695906432748538,
+      "mean_price": 0.1474317738791423,
+      "brier": 0.04715795857699805
+    },
+    {
+      "quarter": "2026Q2",
+      "n": 747,
+      "base_rate": 0.3386880856760375,
+      "mean_price": 0.30299799196787147,
+      "brier": 0.12341803714859438
+    },
+    {
+      "quarter": "2026Q3",
+      "n": 300,
+      "base_rate": 0.18666666666666668,
+      "mean_price": 0.19209899999999996,
+      "brier": 0.07496128316666667
+    }
+  ],
+  "headline": {
+    "horizon_days": 7,
+    "n_markets": 825,
+    "base_rate": 0.19393939393939394,
+    "brier": 0.07690766939393939,
+    "brier_lo": 0.06479539876515152,
+    "brier_hi": 0.08958770705303029,
+    "brier_skill_score": 0.5080330593867479,
+    "bss_lo": 0.4357667241099339,
+    "bss_hi": 0.5748441782812036,
+    "log_loss": 0.23090076056010936,
+    "ece": 0.03214969696969695,
+    "mce": 0.12232317073170726,
+    "murphy": {
+      "brier": 0.07690766939393939,
+      "brier_binned": 0.0790925440771735,
+      "binning_error": -0.0021848746832341115,
+      "reliability": 0.003087976253548033,
+      "resolution": 0.08032233759418904,
+      "uncertainty": 0.1563269054178145,
+      "n_bins_used": 8,
+      "residual": 1.3877787807814457e-17
+    }
+  },
+  "reliability_bins": [
+    {
+      "bin": 0,
+      "lo_edge": 0.0,
+      "hi_edge": 0.0015,
+      "n": 297,
+      "mean_price": 0.0008569023569023569,
+      "realised_freq": 0.0,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.01276904731659217,
+      "gap": 0.0008569023569023569
+    },
+    {
+      "bin": 1,
+      "lo_edge": 0.0015,
+      "hi_edge": 0.0025,
+      "n": 56,
+      "mean_price": 0.0024642857142857144,
+      "realised_freq": 0.0,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.06419393674695818,
+      "gap": 0.0024642857142857144
+    },
+    {
+      "bin": 2,
+      "lo_edge": 0.0025,
+      "hi_edge": 0.0055,
+      "n": 63,
+      "mean_price": 0.004063492063492063,
+      "realised_freq": 0.0,
+      "wilson_lo": 0.0,
+      "wilson_hi": 0.057471199614275104,
+      "gap": 0.004063492063492063
+    },
+    {
+      "bin": 3,
+      "lo_edge": 0.0055,
+      "hi_edge": 0.02290000000000009,
+      "n": 79,
+      "mean_price": 0.011158227848101263,
+      "realised_freq": 0.012658227848101266,
+      "wilson_lo": 0.0022379938543139744,
+      "wilson_hi": 0.06827571879062472,
+      "gap": -0.001500000000000003
+    },
+    {
+      "bin": 4,
+      "lo_edge": 0.02290000000000009,
+      "hi_edge": 0.1,
+      "n": 83,
+      "mean_price": 0.05365662650602411,
+      "realised_freq": 0.1566265060240964,
+      "wilson_lo": 0.09388012273988015,
+      "wilson_hi": 0.24975135497968087,
+      "gap": -0.10296987951807228
+    },
+    {
+      "bin": 5,
+      "lo_edge": 0.1,
+      "hi_edge": 0.38600000000000023,
+      "n": 82,
+      "mean_price": 0.23133536585365858,
+      "realised_freq": 0.35365853658536583,
+      "wilson_lo": 0.2588556832935975,
+      "wilson_hi": 0.4615591334020602,
+      "gap": -0.12232317073170726
+    },
+    {
+      "bin": 6,
+      "lo_edge": 0.38600000000000023,
+      "hi_edge": 0.6510000000000002,
+      "n": 82,
+      "mean_price": 0.5262012195121952,
+      "realised_freq": 0.5975609756097561,
+      "wilson_lo": 0.4893645537436606,
+      "wilson_hi": 0.6970255684592341,
+      "gap": -0.07135975609756084
+    },
+    {
+      "bin": 7,
+      "lo_edge": 0.6510000000000002,
+      "hi_edge": 1.0,
+      "n": 83,
+      "mean_price": 0.8352771084337349,
+      "realised_freq": 0.8192771084337349,
+      "wilson_lo": 0.7230012316310428,
+      "wilson_hi": 0.8873063417174356,
+      "gap": 0.016000000000000014
+    }
+  ],
+  "favourite_longshot": {
+    "slope": 0.8667623870316332,
+    "slope_lo": 0.7539423792610236,
+    "slope_hi": 0.9795823948022429,
+    "intercept": 0.3378923315217066,
+    "intercept_lo": 0.04274024281492028,
+    "intercept_hi": 0.6330444202284929,
+    "n": 825,
+    "slope_differs_from_one": true,
+    "cluster_robust": true,
+    "p_value_slope_eq_1": 0.020631078671865935
+  },
+  "by_horizon": [
+    {
+      "horizon": 1,
+      "n": 885,
+      "base_rate": 0.21242937853107344,
+      "brier": 0.04973076152542373,
+      "brier_lo": 0.041682399290113,
+      "brier_hi": 0.058162993791525425,
+      "bss": 0.7027505746836746,
+      "bss_lo": 0.6518405362669994,
+      "bss_hi": 0.7495378529437242,
+      "slope": 1.1776989558699702,
+      "slope_lo": 0.9434727194082352,
+      "slope_hi": 1.4119251923317053,
+      "slope_p": 0.13702705713693977
+    },
+    {
+      "horizon": 3,
+      "n": 887,
+      "base_rate": 0.21420518602029312,
+      "brier": 0.059559364994363026,
+      "brier_lo": 0.050285594419391205,
+      "brier_hi": 0.06923871572717023,
+      "bss": 0.6461567466793778,
+      "bss_lo": 0.5857226341332636,
+      "bss_hi": 0.7000591191860557,
+      "slope": 1.0302807925203377,
+      "slope_lo": 0.8608020331665678,
+      "slope_hi": 1.1997595518741075,
+      "slope_p": 0.7261983425979321
+    },
+    {
+      "horizon": 7,
+      "n": 825,
+      "base_rate": 0.19393939393939394,
+      "brier": 0.07690766939393939,
+      "brier_lo": 0.0652311610378788,
+      "brier_hi": 0.08975415770454544,
+      "bss": 0.5080330593867479,
+      "bss_lo": 0.4372601785764685,
+      "bss_hi": 0.5742053466988091,
+      "slope": 0.8667623870316332,
+      "slope_lo": 0.7539423792610236,
+      "slope_hi": 0.9795823948022429,
+      "slope_p": 0.020631078671865935
+    },
+    {
+      "horizon": 30,
+      "n": 732,
+      "base_rate": 0.17759562841530055,
+      "brier": 0.0806660481557377,
+      "brier_lo": 0.06771261909153005,
+      "brier_hi": 0.09416518128415302,
+      "bss": 0.44770247141579356,
+      "bss_lo": 0.36998157706644014,
+      "bss_hi": 0.5201857667216505,
+      "slope": 0.905277162399912,
+      "slope_lo": 0.773564127890169,
+      "slope_hi": 1.0369901969096549,
+      "slope_p": 0.1586787857417431
+    }
+  ],
+  "favourite_longshot_pooled": {
+    "slope": 0.9527362509296169,
+    "slope_lo": 0.8413596339545181,
+    "slope_hi": 1.0641128679047156,
+    "intercept": 0.2475022287405166,
+    "intercept_lo": -0.01661541579597295,
+    "intercept_hi": 0.5116198732770062,
+    "n": 3329,
+    "slope_differs_from_one": false,
+    "cluster_robust": true,
+    "p_value_slope_eq_1": 0.4055615034774229
+  },
+  "walk_forward": {
+    "n_scored": 668,
+    "burn_in": 157,
+    "brier_market": 0.0777839872754491,
+    "brier_recalibrated": 0.07651823888787677,
+    "improvement": 0.0012657483875723324
+  },
+  "backtest": {
+    "n_trades": 190,
+    "n_candidates": 668,
+    "threshold": 0.05,
+    "gross_roi": 0.16799404323037948,
+    "net_roi": 0.09224709359874934,
+    "net_roi_lo": -0.0731246065242022,
+    "net_roi_hi": 0.26126367317956667,
+    "hit_rate": 0.42105263157894735,
+    "mean_edge": 0.08787250444286582,
+    "cost_per_trade": 0.025,
+    "significant": false
+  },
+  "cost_model": {
+    "half_spread": 0.02,
+    "fee": 0.0,
+    "slippage": 0.005,
+    "total": 0.025
+  },
+  "threshold_sweep": [
+    {
+      "n_trades": 281,
+      "n_candidates": 668,
+      "threshold": 0.02,
+      "gross_roi": 0.2026721187802718,
+      "net_roi": 0.11688733652830798,
+      "net_roi_lo": -0.01605018916737725,
+      "net_roi_hi": 0.25672465889016566,
+      "hit_rate": 0.3914590747330961,
+      "mean_edge": 0.07080172442763426,
+      "cost_per_trade": 0.025,
+      "significant": false
+    },
+    {
+      "n_trades": 252,
+      "n_candidates": 668,
+      "threshold": 0.03,
+      "gross_roi": 0.18995537667337473,
+      "net_roi": 0.10848479908713014,
+      "net_roi_lo": -0.03868338526484178,
+      "net_roi_hi": 0.251048104859341,
+      "hit_rate": 0.40476190476190477,
+      "mean_edge": 0.0760481015453424,
+      "cost_per_trade": 0.025,
+      "significant": false
+    },
+    {
+      "n_trades": 190,
+      "n_candidates": 668,
+      "threshold": 0.05,
+      "gross_roi": 0.16799404323037948,
+      "net_roi": 0.09224709359874934,
+      "net_roi_lo": -0.07745299472207105,
+      "net_roi_hi": 0.25716535874581126,
+      "hit_rate": 0.42105263157894735,
+      "mean_edge": 0.08787250444286582,
+      "cost_per_trade": 0.025,
+      "significant": false
+    },
+    {
+      "n_trades": 109,
+      "n_candidates": 668,
+      "threshold": 0.08,
+      "gross_roi": 0.31994770976380554,
+      "net_roi": 0.23455324604408773,
+      "net_roi_lo": -0.01016017636921646,
+      "net_roi_hi": 0.4727875194155624,
+      "hit_rate": 0.47706422018348627,
+      "mean_edge": 0.10501443135042109,
+      "cost_per_trade": 0.025,
+      "significant": false
+    },
+    {
+      "n_trades": 54,
+      "n_candidates": 668,
+      "threshold": 0.1,
+      "gross_roi": 0.15470542460526648,
+      "net_roi": 0.08141147706702394,
+      "net_roi_lo": -0.2549478790017727,
+      "net_roi_hi": 0.4332043430443994,
+      "hit_rate": 0.42592592592592593,
+      "mean_edge": 0.11991777014496677,
+      "cost_per_trade": 0.025,
+      "significant": false
+    },
+    {
+      "n_trades": 1,
+      "n_candidates": 668,
+      "threshold": 0.15,
+      "gross_roi": -1.0,
+      "net_roi": -1.0,
+      "net_roi_lo": -1.0,
+      "net_roi_hi": -1.0,
+      "hit_rate": 0.0,
+      "mean_edge": 0.1665490079654054,
+      "cost_per_trade": 0.025,
+      "significant": false
+    }
+  ],
+  "model_comparison": [
+    {
+      "name": "market_platt",
+      "n_features": 1,
+      "brier": 0.06543315120254092,
+      "brier_std": 0.005147629215245021,
+      "log_loss": 0.19859897437528848,
+      "roc_auc": 0.9594641044855048,
+      "roc_auc_std": 0.004738263499151802,
+      "macro_f1": 0.8515022627058348,
+      "accuracy": 0.9038750375488135,
+      "best_params": {},
+      "skill_vs_market": 0.006885719643770272
+    },
+    {
+      "name": "market_price",
+      "n_features": 1,
+      "brier": 0.06588682943826976,
+      "brier_std": 0.003713427089070232,
+      "log_loss": 0.19950957300462274,
+      "roc_auc": 0.9601929174345785,
+      "roc_auc_std": 0.004738263499151802,
+      "macro_f1": 0.8406119329634695,
+      "accuracy": 0.9011715229798738,
+      "best_params": {},
+      "skill_vs_market": 0.0
+    },
+    {
+      "name": "logistic_regression",
+      "n_features": 7,
+      "brier": 0.06616626456996691,
+      "brier_std": 0.005054509518875875,
+      "log_loss": 0.20003028858757912,
+      "roc_auc": 0.9582227877953227,
+      "roc_auc_std": 0.004528736796589634,
+      "macro_f1": 0.8489582026845959,
+      "accuracy": 0.9005707419645539,
+      "best_params": {
+        "clf__C": 10.0
+      },
+      "skill_vs_market": -0.004241137934235528
+    },
+    {
+      "name": "random_forest",
+      "n_features": 7,
+      "brier": 0.066684497876322,
+      "brier_std": 0.005635834197272279,
+      "log_loss": 0.20350010820072337,
+      "roc_auc": 0.9575083204504182,
+      "roc_auc_std": 0.006171989911803556,
+      "macro_f1": 0.8486418976946781,
+      "accuracy": 0.9026734755181737,
+      "best_params": {
+        "max_depth": null,
+        "min_samples_leaf": 20,
+        "n_estimators": 300
+      },
+      "skill_vs_market": -0.01210664475514922
+    },
+    {
+      "name": "gradient_boosting",
+      "n_features": 7,
+      "brier": 0.07686573692277926,
+      "brier_std": 0.005389257650375719,
+      "log_loss": 0.23031147226218734,
+      "roc_auc": 0.9453075247475735,
+      "roc_auc_std": 0.007561267759099936,
+      "macro_f1": 0.813864538026681,
+      "accuracy": 0.8804445779513368,
+      "best_params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "max_iter": 200,
+        "min_samples_leaf": 20
+      },
+      "skill_vs_market": -0.1666328092899929
+    },
+    {
+      "name": "dummy_prior",
+      "n_features": 0,
+      "brier": 0.1603963303427479,
+      "brier_std": 0.00040027818234080544,
+      "log_loss": 0.5013179893471741,
+      "roc_auc": 0.4989516457502132,
+      "roc_auc_std": 0.0,
+      "macro_f1": 0.44424040066777964,
+      "accuracy": 0.7993391408831481,
+      "best_params": {},
+      "skill_vs_market": -1.434421745745488
+    }
+  ],
+  "feature_importance": [
+    {
+      "feature": "logit_price",
+      "importance_mean": 0.17995187218378816,
+      "importance_std": 0.008838985224011064
+    },
+    {
+      "feature": "price_x_horizon",
+      "importance_mean": 0.000665213208686293,
+      "importance_std": 0.0007744611066994102
+    },
+    {
+      "feature": "days_to_resolution",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "is_favourite",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "is_longshot",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "log_volume",
+      "importance_mean": -0.00010455842584428434,
+      "importance_std": 0.0015865393697436067
+    },
+    {
+      "feature": "month_index",
+      "importance_mean": -0.005267404374291322,
+      "importance_std": 0.0018825605203423878
+    }
+  ]
+}
