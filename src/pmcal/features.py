@@ -35,6 +35,13 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
     Prices at exactly 0 or 1 are dropped rather than clipped: a contract
     quoted at 0.000 is either already settled or has no book, and in both
     cases it is not a forecast anyone could have traded against.
+
+    Rows with no volume are dropped rather than filled with 0. Missing is not
+    the same as zero: a 0 would pin log_volume to the bottom of a heavy-tailed
+    feature and tell the models nobody traded a market that may have been busy.
+    The column itself stays optional, because engineer() copes with its absence.
+    Volume is per market, so this drops every horizon of an affected market. It
+    runs before de-duplication so a NaN row can't displace a usable duplicate.
     """
     out = df.copy()
     n0 = len(out)
@@ -45,6 +52,11 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
     out = out[(out["price"] > 0.0) & (out["price"] < 1.0)]
     n_degenerate = n0 - n_na - len(out)
 
+    before_volume = len(out)
+    if "volume" in out:
+        out = out.dropna(subset=["volume"])
+    n_no_volume = before_volume - len(out)
+
     before_dupes = len(out)
     out = out.drop_duplicates(subset=["market_id", "days_to_resolution"], keep="first")
     n_dupes = before_dupes - len(out)
@@ -53,6 +65,7 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
         "rows_in": n0,
         "dropped_missing": int(n_na),
         "dropped_degenerate_price": int(n_degenerate),
+        "dropped_missing_volume": int(n_no_volume),
         "dropped_duplicate_market_horizon": int(n_dupes),
         "rows_out": int(len(out)),
     }

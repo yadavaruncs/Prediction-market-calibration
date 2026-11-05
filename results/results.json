@@ -3,6 +3,7 @@
     "rows_in": 3330,
     "dropped_missing": 0,
     "dropped_degenerate_price": 1,
+    "dropped_missing_volume": 0,
     "dropped_duplicate_market_horizon": 0,
     "rows_out": 3329
   },
@@ -164,6 +165,8 @@
     "log_loss": 0.23090076056010936,
     "ece": 0.03214969696969695,
     "mce": 0.12232317073170726,
+    "mce_bins_skipped": 0,
+    "mce_noise_floor": 0.10801707317073155,
     "murphy": {
       "brier": 0.07690766939393939,
       "brier_binned": 0.0790925440771735,
