@@ -29,7 +29,9 @@ make analyse       # full pipeline, ~90s
 ```
 
 `make analyse` writes `results/results.json`, `results/report.md` and eight
-figures. Every number in this README comes from that run.
+figures. Every number in this README comes from that run. Python 3.11+ is
+required, and scikit-learn is pinned to 1.9.1 because earlier versions split
+the cross-validation folds differently, which changes the model comparison.
 
 The dataset ships with the repo (`data/raw/markets.csv`, 3,330 rows, one of
 which cleaning drops for an already-settled price of 1.0), so the analysis

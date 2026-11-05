@@ -3,7 +3,7 @@ name = "pmcal"
 version = "0.1.0"
 description = "Probability calibration analysis for prediction markets"
 authors = [{name = "Arun Yadav"}]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
