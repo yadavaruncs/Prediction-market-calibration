@@ -15,13 +15,14 @@ import pandas as pd
 from . import eda, models, plots
 from .backtest import CostModel, run_backtest, threshold_sweep
 from .calibration import (
-    favourite_longshot_test, reliability_bins, walk_forward_recalibration,
+    favourite_longshot_test, ols_calibration_slope, reliability_bins,
+    walk_forward_recalibration,
 )
 from .features import FEATURE_COLUMNS, prepare
 from .io import load_markets
 from .metrics import (
     brier_score, brier_skill_score, cluster_bootstrap,
-    expected_calibration_error, log_loss, murphy_decomposition,
+    MIN_BIN_N, expected_calibration_error, log_loss, mce_noise_floor, murphy_decomposition,
 )
 
 HEADLINE_HORIZON = 7
@@ -86,7 +87,8 @@ def main(argv=None) -> int:
                                             n_boot=args.n_boot)
     bss, bss_lo, bss_hi, _ = cluster_bootstrap(brier_skill_score, p, y,
                                                clusters=mk, n_boot=args.n_boot)
-    ece, mce = expected_calibration_error(p, y, n_bins=args.bins)
+    ece, mce, bin_counts = expected_calibration_error(p, y, n_bins=args.bins,
+                                                      return_counts=True)
     murphy = murphy_decomposition(p, y, n_bins=args.bins)
 
     R["headline"] = {
@@ -97,6 +99,8 @@ def main(argv=None) -> int:
         "brier_skill_score": bss, "bss_lo": bss_lo, "bss_hi": bss_hi,
         "log_loss": log_loss(p, y),
         "ece": ece, "mce": mce,
+        "mce_bins_skipped": int(((bin_counts > 0) & (bin_counts < MIN_BIN_N)).sum()),
+        "mce_noise_floor": mce_noise_floor(p, n_bins=args.bins),
         "murphy": murphy.as_dict(),
     }
 
@@ -117,6 +121,8 @@ def main(argv=None) -> int:
     print("[3/6] favourite-longshot test")
     flb = favourite_longshot_test(p, y, clusters=mk)
     R["favourite_longshot"] = flb.as_dict()
+    # The source study's specification (OLS on raw price), kept for comparison.
+    R["favourite_longshot_ols"] = ols_calibration_slope(p, y, clusters=mk).as_dict()
 
     # ------------------------------------------------------ 4. across horizons
     print("[4/6] all horizons")
@@ -221,7 +227,17 @@ def _write_report(R: dict, path: Path) -> None:
              f"[{h.get('bss_lo', float('nan')):.3f}, {h.get('bss_hi', float('nan')):.3f}] |")
     L.append(f"| Log loss | {h.get('log_loss', float('nan')):.4f} | - |")
     L.append(f"| ECE | {h.get('ece', float('nan')):.4f} | - |")
-    L.append(f"| MCE | {h.get('mce', float('nan')):.4f} | - |\n")
+    L.append(f"| MCE | {h.get('mce', float('nan')):.4f} | - |")
+    L.append(f"| Bins left out of MCE (under {MIN_BIN_N} rows) | {h.get('mce_bins_skipped')} | - |")
+    L.append(f"| MCE noise floor (perfect calibration, 95th pct) | "
+             f"{h.get('mce_noise_floor', float('nan')):.4f} | - |\n")
+
+    L.append(f"\n### Rows behind each bin (under {MIN_BIN_N} are left out of MCE)\n")
+    L.append("| bin | n | mean price | realised |")
+    L.append("| --- | --- | --- | --- |")
+    for b in R["reliability_bins"].to_dict("records"):
+        L.append(f"| {b['bin']} | {b['n']} | {b['mean_price']:.4f} | {b['realised_freq']:.4f} |")
+    L.append("")
 
     L.append("\n### Murphy decomposition\n")
     L.append("Brier = reliability - resolution + uncertainty\n")

@@ -11,7 +11,7 @@ import pytest
 
 from src.pmcal.metrics import (
     brier_score, brier_skill_score, cluster_bootstrap,
-    expected_calibration_error, log_loss, murphy_decomposition,
+    expected_calibration_error, log_loss, mce_noise_floor, murphy_decomposition,
 )
 
 
@@ -130,6 +130,63 @@ def test_mce_catches_single_bad_bin_that_ece_hides():
     ece, mce = expected_calibration_error(p, y, n_bins=2)
     assert ece < 0.02
     assert mce > 0.9
+
+
+def test_tiny_bin_leaves_mce_but_stays_in_ece():
+    # Perfectly calibrated bin, plus 5 rows that would be a gap of 0.9 alone.
+    p = np.concatenate([np.full(100, 0.2), np.full(5, 0.9)])
+    y = np.concatenate([np.array([1] * 20 + [0] * 80), np.zeros(5, dtype=int)])
+    ece, mce, counts = expected_calibration_error(p, y, n_bins=2, strategy="uniform",
+                                                  return_counts=True)
+    assert ece == pytest.approx((5 / 105) * 0.9)
+    assert mce == pytest.approx(0.0, abs=1e-9)
+    assert counts.tolist() == [100, 5]
+
+
+def test_min_bin_n_is_adjustable():
+    p = np.concatenate([np.full(100, 0.2), np.full(5, 0.9)])
+    y = np.concatenate([np.array([1] * 20 + [0] * 80), np.zeros(5, dtype=int)])
+    _, mce = expected_calibration_error(p, y, n_bins=2, strategy="uniform", min_bin_n=5)
+    assert mce == pytest.approx(0.9)
+
+
+def test_mce_is_nan_not_zero_when_every_bin_is_tiny():
+    ece, mce = expected_calibration_error([0.2, 0.8], [0, 1], n_bins=2)
+    assert ece == pytest.approx(0.2)
+    assert np.isnan(mce)
+
+
+@pytest.mark.parametrize("strategy", ["uniform", "quantile"])
+def test_calibrated_mce_is_stable_from_10_to_100_bins(strategy):
+    # Skewed like the real prices, so 100 bins leaves a few rows in the top bins.
+    rng = np.random.default_rng(21)
+    p = rng.beta(0.5, 5, 20_000)
+    y = rng.binomial(1, p)
+    _, mce_10 = expected_calibration_error(p, y, n_bins=10, strategy=strategy)
+    _, mce_100 = expected_calibration_error(p, y, n_bins=100, strategy=strategy)
+    # Under 0.29 across 300 seeds with min_bin_n=20; without it the median is 0.54.
+    assert abs(mce_100 - mce_10) < 0.3
+
+
+@pytest.mark.parametrize("n_bins", [10, 100])
+def test_calibrated_mce_stays_under_its_noise_floor_at_any_bin_count(n_bins):
+    rng = np.random.default_rng(11)
+    p = rng.uniform(0.01, 0.99, 5000)
+    y = rng.binomial(1, p)
+    _, mce = expected_calibration_error(p, y, n_bins=n_bins)
+    assert mce <= mce_noise_floor(p, n_bins=n_bins, n_sim=200)
+
+
+def test_real_miscalibration_clears_the_noise_floor():
+    rng = np.random.default_rng(12)
+    p = rng.uniform(0.3, 0.7, 5000)
+    y = rng.binomial(1, np.clip(p + 0.2, 0, 1))
+    _, mce = expected_calibration_error(p, y, n_bins=10)
+    assert mce > mce_noise_floor(p, n_bins=10, n_sim=200)
+
+
+def test_noise_floor_is_nan_when_every_bin_is_tiny():
+    assert np.isnan(mce_noise_floor([0.2, 0.8], n_bins=2, n_sim=5))
 
 
 def test_cluster_bootstrap_interval_contains_truth():

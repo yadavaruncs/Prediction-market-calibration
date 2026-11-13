@@ -5,9 +5,11 @@ import pandas as pd
 import pytest
 
 from src.pmcal.calibration import (
-    favourite_longshot_test, inv_logit, logit, reliability_bins,
-    walk_forward_recalibration,
+    favourite_longshot_test, inv_logit, logit, ols_calibration_slope,
+    reliability_bins, walk_forward_recalibration,
 )
+from src.pmcal.features import prepare
+from src.pmcal.io import load_markets
 
 
 def test_logit_roundtrip():
@@ -55,6 +57,16 @@ def test_flb_detects_injected_longshot_bias():
     r = favourite_longshot_test(p_quoted, y)
     assert r.slope > 1.3
     assert r.slope_differs_from_one
+
+
+def test_ols_spec_reproduces_source_study_on_committed_data():
+    """The source study's OLS-on-price slope, 1.01 [0.93, 1.09], at 7 days."""
+    df = prepare(load_markets())
+    h = df[df["days_to_resolution"] == 7]
+    r = ols_calibration_slope(h["price"].to_numpy(float), h["outcome"].to_numpy(float),
+                              clusters=h["market_id"].to_numpy())
+    assert r.slope_lo <= 1.01 <= r.slope_hi
+    assert r.slope == pytest.approx(1.01, abs=0.005)
 
 
 def test_walk_forward_has_no_lookahead():

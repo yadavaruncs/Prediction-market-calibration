@@ -103,6 +103,40 @@ def test_clean_drops_duplicate_market_horizon():
     assert out.attrs["cleaning_report"]["dropped_duplicate_market_horizon"] == 1
 
 
+def test_clean_drops_and_reports_missing_volume():
+    df = pd.DataFrame({
+        "market_id": [1, 2],
+        "price": [0.4, 0.6],
+        "outcome": [1, 0],
+        "days_to_resolution": [7, 7],
+        "close_time": pd.date_range("2024-01-01", periods=2, tz="UTC"),
+        "volume": [100.0, float("nan")],
+    })
+    out = clean(df)
+    assert out["market_id"].tolist() == [1]
+    assert out.attrs["cleaning_report"]["dropped_missing_volume"] == 1
+    assert out.attrs["cleaning_report"]["dropped_missing"] == 0
+    assert engineer(out)["log_volume"].notna().all()
+
+
+def test_feature_matrix_has_no_nan_when_volume_is_missing():
+    df = _frame().drop(columns=["p_recal"])
+    df.loc[df.index[::10], "volume"] = float("nan")
+    prepared = prepare(df)
+    X, y, groups = feature_matrix(prepared)
+    assert not np.isnan(X).any()
+    assert len(X) == len(y) == len(groups) == 270
+    assert prepared.attrs["cleaning_report"]["dropped_missing_volume"] == 30
+
+
+def test_clean_keeps_the_usable_duplicate_when_the_first_has_no_volume():
+    df = _frame(n=2).drop(columns=["p_recal"]).assign(market_id=1, days_to_resolution=7)
+    df.loc[0, "volume"] = float("nan")
+    out = clean(df)
+    assert len(out) == 1 and out["volume"].notna().all()
+    assert out.attrs["cleaning_report"]["dropped_duplicate_market_horizon"] == 0
+
+
 def test_engineer_creates_expected_columns():
     out = engineer(clean(_frame().drop(columns=["p_recal"])))
     for col in ("logit_price", "log_volume", "is_longshot",

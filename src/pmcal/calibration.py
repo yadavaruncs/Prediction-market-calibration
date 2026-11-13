@@ -80,12 +80,20 @@ class FavouriteLongshot:
 
     slope = 1 and intercept = 0 is a perfectly calibrated market.
 
-    slope < 1 is the classic favourite-longshot bias: longshots are priced
-    too high and favourites too low, so the realised curve is flatter than
-    the diagonal. slope > 1 is the reverse.
+    slope > 1 is the classic favourite-longshot bias: the realised curve is
+    steeper than the diagonal, so longshots are priced too high and
+    favourites too low. slope < 1 is the reverse: a flatter curve, with
+    longshots underpriced and favourites overpriced.
+
+    The 7-day result on this data (slope 0.867, CI excluding 1) is the
+    reverse bias. The bins show it: contracts near 5c resolve at 15.7%,
+    contracts near 83.5c at 81.9%.
 
     The test that matters is whether the CI for the slope excludes 1 -- not
     whether the point estimate happens to differ from it.
+
+    `ols_calibration_slope` returns the same fields for the identity-scale
+    fit (outcome on raw price); its slope is a different estimand.
     """
 
     slope: float
@@ -133,6 +141,42 @@ def favourite_longshot_test(p, y, clusters=None, alpha: float = 0.05) -> Favouri
         pval = float(stats.chi2.sf(wald_stat, df=1))
     else:
         pval = float("nan")
+
+    return FavouriteLongshot(
+        slope=slope,
+        slope_lo=slope_lo,
+        slope_hi=slope_hi,
+        intercept=intercept,
+        intercept_lo=float(ci[0][0]),
+        intercept_hi=float(ci[0][1]),
+        n=int(len(p)),
+        slope_differs_from_one=not (slope_lo <= 1.0 <= slope_hi),
+        cluster_robust=clusters is not None,
+        p_value_slope_eq_1=pval,
+    )
+
+
+def ols_calibration_slope(p, y, clusters=None, alpha: float = 0.05) -> FavouriteLongshot:
+    """Fit outcome ~ price by OLS (identity scale) and test slope == 1.
+
+    This is the specification of the study the dataset came from. A
+    calibrated market gives slope 1 here too, but deviations are measured in
+    probability rather than log-odds, so most of this sample (priced under
+    5c, where squared errors are tiny) has little leverage. The slope is not
+    comparable to `favourite_longshot_test`'s.
+    """
+    p, y = _validate(p, y)
+    model = sm.OLS(y, sm.add_constant(p))
+    if clusters is not None:
+        res = model.fit(cov_type="cluster", cov_kwds={"groups": np.asarray(clusters)})
+    else:
+        res = model.fit(cov_type="HC1")
+
+    ci = res.conf_int(alpha=alpha)
+    intercept, slope = float(res.params[0]), float(res.params[1])
+    slope_lo, slope_hi = float(ci[1][0]), float(ci[1][1])
+    se_slope = float(res.bse[1])
+    pval = float(stats.chi2.sf(((slope - 1.0) / se_slope) ** 2, df=1)) if se_slope > 0 else float("nan")
 
     return FavouriteLongshot(
         slope=slope,

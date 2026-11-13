@@ -166,6 +166,11 @@ def murphy_decomposition(p, y, bins: np.ndarray | None = None,
     )
 
 
+# Below this a bin's gap is mostly sampling noise: a one-row bin always has a
+# gap of max(p, 1 - p) or so, however well calibrated the forecast is.
+MIN_BIN_N = 20
+
+
 def _bin_edges(p: np.ndarray, n_bins: int, strategy: str) -> np.ndarray:
     if strategy == "uniform":
         return np.linspace(0.0, 1.0, n_bins + 1)
@@ -183,30 +188,58 @@ def _bin_edges(p: np.ndarray, n_bins: int, strategy: str) -> np.ndarray:
     raise ValueError(f"unknown binning strategy: {strategy!r}")
 
 
-def expected_calibration_error(p, y, n_bins: int = 10,
-                               strategy: str = "quantile") -> tuple[float, float]:
-    """Return (ECE, MCE).
+def expected_calibration_error(p, y, n_bins: int = 10, strategy: str = "quantile",
+                               min_bin_n: int = MIN_BIN_N, return_counts: bool = False):
+    """Return (ECE, MCE), or (ECE, MCE, per-bin counts) with `return_counts`.
 
     ECE is the sample-weighted mean gap between forecast and realised
     frequency; MCE is the worst single bin. ECE can look excellent while one
     region of the probability scale is badly wrong, which is what MCE catches.
+
+    Bins under `min_bin_n` rows are left out of MCE, which is a maximum and so
+    is hostage to its noisiest bin. ECE keeps every bin, because its weights
+    already shrink a small bin's say. MCE is nan if no bin is big enough: 0.0
+    would claim perfect calibration.
     """
     p, y = _validate(p, y)
     edges = _bin_edges(p, n_bins=n_bins, strategy=strategy)
     idx = np.clip(np.digitize(p, edges[1:-1], right=True), 0, len(edges) - 2)
 
     total = 0.0
-    worst = 0.0
+    worst = float("nan")
     n = len(p)
+    counts = np.zeros(len(edges) - 1, dtype=int)
     for k in range(len(edges) - 1):
         mask = idx == k
         nk = int(mask.sum())
+        counts[k] = nk
         if nk == 0:
             continue
         gap = abs(float(np.mean(p[mask])) - float(np.mean(y[mask])))
         total += (nk / n) * gap
-        worst = max(worst, gap)
-    return float(total), float(worst)
+        if nk >= min_bin_n:
+            worst = float(np.fmax(worst, gap))
+    if return_counts:
+        return float(total), worst, counts
+    return float(total), worst
+
+
+def mce_noise_floor(p, n_bins: int = 10, strategy: str = "quantile",
+                    n_sim: int = 500, seed: int = 20260301) -> float:
+    """MCE that perfectly calibrated forecasts would still show, 95th percentile.
+
+    MCE grows with the bin count because smaller bins are noisier, so a raw MCE
+    can't be read alone. This redraws outcomes as if `p` were the true
+    probabilities (consistency resampling, Broecker & Smith 2007), keeping the
+    same bins and sample size. An MCE under this floor is within sampling noise.
+    """
+    p = np.asarray(p, dtype=float)
+    rng = np.random.default_rng(seed)
+    sims = [
+        expected_calibration_error(p, rng.binomial(1, p), n_bins=n_bins, strategy=strategy)[1]
+        for _ in range(n_sim)
+    ]
+    return float("nan") if np.isnan(sims).all() else float(np.nanquantile(sims, 0.95))
 
 
 def cluster_bootstrap(
