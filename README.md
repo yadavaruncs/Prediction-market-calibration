@@ -23,6 +23,8 @@ distinguished from zero is the whole point of the exercise.
 ## Running it
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 make test          # 40 tests, ~2s
 make analyse       # full pipeline, ~90s
@@ -30,8 +32,11 @@ make analyse       # full pipeline, ~90s
 
 `make analyse` writes `results/results.json`, `results/report.md` and eight
 figures. Every number in this README comes from that run. Python 3.11+ is
-required, and scikit-learn is pinned to 1.9.1 because earlier versions split
-the cross-validation folds differently, which changes the model comparison.
+required (tested on 3.15.2), and scikit-learn is pinned to 1.9.1 because
+earlier versions split the cross-validation folds differently, which changes
+the model comparison. Use a fresh virtual environment: an older scikit-learn
+already installed elsewhere (e.g. in a conda base environment) will silently
+change those numbers.
 
 The dataset ships with the repo (`data/raw/markets.csv`, 3,330 rows, one of
 which cleaning drops for an already-settled price of 1.0), so the analysis
