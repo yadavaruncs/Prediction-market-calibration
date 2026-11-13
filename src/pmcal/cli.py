@@ -15,7 +15,8 @@ import pandas as pd
 from . import eda, models, plots
 from .backtest import CostModel, run_backtest, threshold_sweep
 from .calibration import (
-    favourite_longshot_test, reliability_bins, walk_forward_recalibration,
+    favourite_longshot_test, ols_calibration_slope, reliability_bins,
+    walk_forward_recalibration,
 )
 from .features import FEATURE_COLUMNS, prepare
 from .io import load_markets
@@ -120,6 +121,8 @@ def main(argv=None) -> int:
     print("[3/6] favourite-longshot test")
     flb = favourite_longshot_test(p, y, clusters=mk)
     R["favourite_longshot"] = flb.as_dict()
+    # The source study's specification (OLS on raw price), kept for comparison.
+    R["favourite_longshot_ols"] = ols_calibration_slope(p, y, clusters=mk).as_dict()
 
     # ------------------------------------------------------ 4. across horizons
     print("[4/6] all horizons")

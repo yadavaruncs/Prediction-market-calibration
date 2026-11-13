@@ -280,6 +280,18 @@
     "cluster_robust": true,
     "p_value_slope_eq_1": 0.020631078671865935
   },
+  "favourite_longshot_ols": {
+    "slope": 1.0108577580605764,
+    "slope_lo": 0.9321068687237236,
+    "slope_hi": 1.0896086473974294,
+    "intercept": 0.025549483319532086,
+    "intercept_lo": 0.011361469481960486,
+    "intercept_hi": 0.03973749715710369,
+    "n": 825,
+    "slope_differs_from_one": false,
+    "cluster_robust": true,
+    "p_value_slope_eq_1": 0.7869836862001455
+  },
   "by_horizon": [
     {
       "horizon": 1,
@@ -506,7 +518,7 @@
       "name": "random_forest",
       "n_features": 7,
       "brier": 0.066684497876322,
-      "brier_std": 0.005635834197272279,
+      "brier_std": 0.00563583419727228,
       "log_loss": 0.20350010820072337,
       "roc_auc": 0.9575083204504182,
       "roc_auc_std": 0.006171989911803556,

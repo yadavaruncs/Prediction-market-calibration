@@ -122,10 +122,27 @@ horizons takes its p-value to 0.083. So the honest reading is a possible
 7-day deviation, not a demonstrated bias.
 
 **The study that produced the dataset** reported a slope of 1.01 [0.93, 1.09]
-and concluded there was no measurable bias. The pooled interval here overlaps
-that one, so the two analyses need not disagree: the gap is most likely the
-choice of horizon. I have not been able to rule out a specification
-difference, and I would want the raw per-market data to settle it.
+and concluded there was no measurable bias. It used the same data
+(`data/raw/markets.csv` is byte-identical to its `data/sample/markets.csv`)
+with a different specification: OLS of outcome on raw price, where this repo
+fits a logistic regression on logit(price). Both are reproduced here at the
+7-day horizon, with standard errors clustered by market:
+
+| specification | slope | 95% CI |
+| --- | --- | --- |
+| OLS, outcome on price (source study) | 1.011 | [0.932, 1.090] |
+| logistic, outcome on logit(price) (this repo) | 0.867 | [0.754, 0.980] |
+
+The two slopes are different estimands, so neither contradicts the other.
+Both equal 1 for a perfectly calibrated market, but they measure misses on
+different scales. On the logit scale a miss is measured in log-odds, so the
+~5c bin resolving at 15.7% is a large error (odds off by a factor of about
+3.3), and 64% of the sample sits below 5c. On the identity scale the same bin
+is off by 10 percentage points, the hundreds of sub-1c contracts contribute
+almost nothing, and the fit is dominated by mid-range prices and favourites,
+which sit close to the diagonal. "No slope deviation in probability" and "a
+flatter-than-diagonal curve in log-odds" are both true of this data. The OLS
+fit is written to `results.json` under `favourite_longshot_ols`.
 
 ### Skill decays with horizon, as it should
 
