@@ -18,6 +18,8 @@ demonstrated edge.
 The headline number is the last one. An apparent 9.2% return that cannot be
 distinguished from zero is the whole point of the exercise.
 
+**Stack:** Python 3.11+, pandas, NumPy, SciPy, statsmodels, scikit-learn, Matplotlib, requests, pytest.
+
 ---
 
 ## Running it
@@ -46,6 +48,29 @@ rate-limited.
 
 ---
 
+`make analyse` writes `results/results.json`, `results/report.md` and eight
+figures. Every number in this README comes from that run. Python 3.11+ is
+required (tested on 3.15.2), and scikit-learn is pinned to 1.9.1 because
+earlier versions split the cross-validation folds differently, which changes
+the model comparison. Use a fresh virtual environment: an older scikit-learn
+already installed elsewhere (e.g. in a conda base environment) will silently
+change those numbers.
+
+## Pipeline and operations
+
+- **Source data:** The committed `data/raw/markets.csv` is a derived extract documented in `data/README.md`, not a download produced by this repository's fetcher. The optional `make fetch` path pages resolved markets from Polymarket Gamma, then fetches each YES token's historical prices from CLOB. It records the last quote at or before each 1-, 3-, 7-, and 30-day pre-resolution target (never a later quote), and writes the resulting CSV. Requests have 30-second timeouts and a 250 ms delay between successful pages/history calls; Gamma HTTP errors raise, while a non-200 CLOB history response is treated as an empty history and that market contributes no rows. There is no retry/backoff loop. Gamma responses can be cached as `data/cache/gamma_markets.json`; historical CLOB responses are not checkpointed.
+- **Analysis flow:** `src.pmcal.cli` loads the chosen CSV, validates required columns, parses UTC close times, then `prepare()` reports dropped rows and engineers the feature matrix. The CLI writes JSON metrics and a Markdown report to `--out` (default `results/`) and figures to `--figures` (default `figures/`). It exposes `--horizon`, `--n-boot`, `--bins`, and `--skip-models` so the analysis can be rerun with explicit settings. The committed CSV makes the default analysis reproducible without an API call.
+- **Leakage and repeatability controls:** Model validation groups all horizons from one market together with `StratifiedGroupKFold`; walk-forward Platt recalibration only trains on outcomes known at the time each quote was observed, with a 150-market burn-in and periodic refits. Cluster bootstrap intervals resample whole markets rather than individual horizon rows. The tests include mutation-based checks that future outcomes cannot change earlier recalibrated predictions.
+- **State and recovery:** The analysis is batch/offline after the CSV is present; it has no service process, database, job queue, or deployed model checkpoint. Output directories are created when the CLI runs. `make clean` removes generated JSON/Markdown reports and PNG figures, but leaves the source CSV and notebooks intact. A failed API collection must be rerun; the Gamma cache can retain the market metadata already fetched, but the fetch command currently re-requests Gamma rather than loading that cache automatically.
+- **Tests:** `make test` runs the local pytest suite against committed/synthetic data; tests exercise cleaning, calibration, grouped-market statistics, and look-ahead guards. The live fetch path itself is not a mocked offline integration test.
+
+The dataset ships with the repo (`data/raw/markets.csv`, 3,330 rows, one of
+which cleaning drops for an already-settled price of 1.0), so the analysis
+reproduces offline. `make fetch` re-downloads from Polymarket's
+public APIs if you want a fresher sample; it needs network access and is
+rate-limited.
+
+---
 ## What's in the data
 
 | | |
